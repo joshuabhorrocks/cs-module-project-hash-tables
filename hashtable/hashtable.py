@@ -21,8 +21,8 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
-
+        self.bArr = [None for i in range(capacity)]
+        self.capacity = capacity
 
     def get_num_slots(self):
         """
@@ -34,8 +34,8 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return self.capacity
+        
 
     def get_load_factor(self):
         """
@@ -62,7 +62,12 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        hash = 5381
+
+        for x in key:
+            hash = ((hash << 5) + hash) + ord(x)
+        retH = hash & 0xffffffff
+        return retH
 
 
     def hash_index(self, key):
@@ -73,6 +78,7 @@ class HashTable:
         #return self.fnv1(key) % self.capacity
         return self.djb2(key) % self.capacity
 
+
     def put(self, key, value):
         """
         Store the value with the given key.
@@ -81,7 +87,24 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        key_hash = self.djb2(key)
+        bIndex = key_hash % self.capacity
+
+        new_node = HashTableEntry(key, value)
+        existing_node = self.bArr[bIndex]
+        # print("bIndex: ", bIndex)
+
+        if existing_node:
+            last_node = None
+            while existing_node:
+                if existing_node.key == key:
+                    existing_node.value = value
+                    return
+                last_node = existing_node
+                existing_node = existing_node.next
+            last_node.next = new_node
+        else:
+            self.bArr[bIndex] = new_node
 
 
     def delete(self, key):
@@ -92,7 +115,20 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        key_hash = self.djb2(key)
+        bIndex = key_hash % self.capacity
+
+        existing_node = self.bArr[bIndex]
+        if existing_node:
+            last_node = None
+            while existing_node:
+                if existing_node.key == key:
+                    if last_node:
+                        last_node.next_node = existing_node.next
+                    else:
+                        self.bArr[bIndex] = existing_node.next
+                last_node = existing_node
+                existing_node = existing_node.next
 
 
     def get(self, key):
@@ -103,7 +139,19 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+
+        key_hash = self.djb2(key)
+        bIndex = key_hash % self.capacity
+        # print("bIndex: ", bIndex)
+
+        existing_node = self.bArr[bIndex]
+        if existing_node:
+            while existing_node:
+                if existing_node.key == key:
+                    return existing_node.value
+                existing_node = existing_node.next
+
+        return None
 
 
     def resize(self, new_capacity):
@@ -113,7 +161,22 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # print("SELF.CAPACITY: ", self.capacity)
+        # print("NEW CAPACITY: ", new_capacity)
+        # self.capacity = new_capacity
+        # print("NEW SELF.CAPACITY: ", self.capacity)
+        # arrLen = len(self.bArr)
+        # print("arrLen: ", arrLen)
+
+        # if arrLen <= self.capacity:
+        #     difference = self.capacity - arrLen
+        #     print("difference: ", difference)
+        #     print("arrLen <= capacity: ", arrLen)
+        #     return difference
+        # else:
+        #     self.capacity = arrLen
+        #     print("arrLen > capacity: ", arrLen)
+        #     return arrLen
 
 
 
@@ -151,3 +214,5 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     print("")
+
+    # print(ht.hash_index("line_1"))
