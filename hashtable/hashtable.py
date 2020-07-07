@@ -21,9 +21,8 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        self.capacity = capacity    # Starting Capacity: 8
+        self.capacity = capacity
         self.storage = [None] * capacity
-        # print("Starting storage setup: ", self.storage)
         self.count = 0
 
     def get_num_slots(self):
@@ -68,6 +67,7 @@ class HashTable:
 
         for x in key:
             hash = ((hash << 5) + hash) + ord(x)
+
         retH = hash & 0xffffffff
         return retH
 
@@ -158,9 +158,7 @@ class HashTable:
         self.storage = [None] * new_capacity
 
         for i in range(len(oldStorage)):
-
             oldStor = oldStorage[i]
-
             if oldStor:
                 while oldStor:
                     if oldStor.key:
