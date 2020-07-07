@@ -21,8 +21,10 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        self.bArr = [None for i in range(capacity)]
-        self.capacity = capacity
+        self.capacity = capacity    # Starting Capacity: 8
+        self.storage = [None] * capacity
+        # print("Starting storage setup: ", self.storage)
+        self.count = 0
 
     def get_num_slots(self):
         """
@@ -43,7 +45,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.count / self.capacity
 
 
     def fnv1(self, key):
@@ -87,24 +89,16 @@ class HashTable:
 
         Implement this.
         """
-        key_hash = self.djb2(key)
-        bIndex = key_hash % self.capacity
+        index = self.hash_index(key)
+        node = self.storage[index]
+        hTab = HashTableEntry(key, value)
 
-        new_node = HashTableEntry(key, value)
-        existing_node = self.bArr[bIndex]
-        # print("bIndex: ", bIndex)
-
-        if existing_node:
-            last_node = None
-            while existing_node:
-                if existing_node.key == key:
-                    existing_node.value = value
-                    return
-                last_node = existing_node
-                existing_node = existing_node.next
-            last_node.next = new_node
+        if node is not None:
+            self.storage[index] = hTab
+            self.storage[index].next = node
         else:
-            self.bArr[bIndex] = new_node
+            self.storage[index] = hTab
+            self.count += 1
 
 
     def delete(self, key):
@@ -115,21 +109,23 @@ class HashTable:
 
         Implement this.
         """
-        key_hash = self.djb2(key)
-        bIndex = key_hash % self.capacity
+        index = self.hash_index(key)
+        node = self.storage[index]
+        prev = None
 
-        existing_node = self.bArr[bIndex]
-        if existing_node:
-            last_node = None
-            while existing_node:
-                if existing_node.key == key:
-                    if last_node:
-                        last_node.next_node = existing_node.next
-                    else:
-                        self.bArr[bIndex] = existing_node.next
-                last_node = existing_node
-                existing_node = existing_node.next
-
+        if node.key == key:
+            self.storage[index] = node.next
+            return
+        while node != None:
+            if node.key == key:
+                prev.next = node.next
+                self.storage[index].next = None
+                return
+            prev = node
+            node = node.next
+        self.count -= 1
+        return
+          
 
     def get(self, key):
         """
@@ -139,19 +135,15 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        node = self.storage[index]
 
-        key_hash = self.djb2(key)
-        bIndex = key_hash % self.capacity
-        # print("bIndex: ", bIndex)
-
-        existing_node = self.bArr[bIndex]
-        if existing_node:
-            while existing_node:
-                if existing_node.key == key:
-                    return existing_node.value
-                existing_node = existing_node.next
-
-        return None
+        if node is not None:
+            while node:
+                if node.key == key:
+                    return node.value
+                node = node.next
+        return node
 
 
     def resize(self, new_capacity):
@@ -161,23 +153,19 @@ class HashTable:
 
         Implement this.
         """
-        # print("SELF.CAPACITY: ", self.capacity)
-        # print("NEW CAPACITY: ", new_capacity)
-        # self.capacity = new_capacity
-        # print("NEW SELF.CAPACITY: ", self.capacity)
-        # arrLen = len(self.bArr)
-        # print("arrLen: ", arrLen)
+        oldStorage = self.storage
+        self.capacity = new_capacity
+        self.storage = [None] * new_capacity
 
-        # if arrLen <= self.capacity:
-        #     difference = self.capacity - arrLen
-        #     print("difference: ", difference)
-        #     print("arrLen <= capacity: ", arrLen)
-        #     return difference
-        # else:
-        #     self.capacity = arrLen
-        #     print("arrLen > capacity: ", arrLen)
-        #     return arrLen
+        for i in range(len(oldStorage)):
 
+            oldStor = oldStorage[i]
+
+            if oldStor:
+                while oldStor:
+                    if oldStor.key:
+                        self.put(oldStor.key, oldStor.value)
+                        oldStor = oldStor.next
 
 
 if __name__ == "__main__":
@@ -214,5 +202,3 @@ if __name__ == "__main__":
         print(ht.get(f"line_{i}"))
 
     print("")
-
-    # print(ht.hash_index("line_1"))
