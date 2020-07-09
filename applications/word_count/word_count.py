@@ -1,5 +1,24 @@
 def word_count(s):
-    # Your code here
+    cache = {}
+    bad_chars = ["\"", ":", ";", ',', '.', '-', '+', '=', '/', '\\', '|', '[', ']', '{', '}', '(', ')', '*', '^', '&']
+    count = 0
+
+    lower_s = s.lower()
+
+    for i in bad_chars:
+        lower_s = lower_s.replace(i, "")
+    fixed_s = lower_s.split()
+    
+    for x in fixed_s:
+        for y in fixed_s:
+            if x == y:
+                count += 1
+            else:
+                pass
+        cache.update(dict(zip({x}, {count})))
+        count = 0
+    return cache
+
 
 
 
